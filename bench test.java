@@ -73,7 +73,7 @@ public class GFPlayer implements MNKPlayer {
     //Nota Bene, da capire come gestire e dove inizializzare depth, e come capire il turno da mettere in
     //isMaximizing 
     //int depth=0;
-    MNKCell MiniMax(MNKBoard B, int depth, bool isMaximizing ){
+    int MiniMax(MNKBoard B, int depth, bool isMaximizing ){
         //caso base
        //one possible move.
        if (FC.length == 1) {              
@@ -96,7 +96,7 @@ public class GFPlayer implements MNKPlayer {
                    }
                }
            }
-           return b;
+           return bestscore;
        }
        else{
            int bestscore = 1000000;
@@ -114,7 +114,7 @@ public class GFPlayer implements MNKPlayer {
                    }
                }
            }
-           return b;
+           return bestscore;
        }
    }
 }
