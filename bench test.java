@@ -73,7 +73,7 @@ public class GFPlayer implements MNKPlayer {
         if (FC.length == 1)
             return FC[0];
 
-        
+      //wwww  
 
 
         //1)
