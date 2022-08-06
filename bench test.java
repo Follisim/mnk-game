@@ -58,8 +58,68 @@ public class GFPlayer implements MNKPlayer {
         myWin = first ? MNKGameState.WINP1 : MNKGameState.WINP2;
         yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
     }
+	
+	/*------------------------ */
+    int min(int a, int b){
+        if(a<b)return a;
+        else return b;
+    }
 
+    int max(int a, int b){
+        if(a>b)return a;
+        else return b;
+    }
 
+    //Nota Bene, da capire come gestire e dove inizializzare depth, e come capire il turno da mettere in
+    //isMaximizing 
+    //int depth=0;
+    MNKCell MiniMax(MNKBoard B, int depth, bool isMaximizing ){
+        //caso base
+       //one possible move.
+       if (FC.length == 1) {              
+       return FC[0];
+       }
+       else{
+       if (isMaximizing){//come capisco se tocca a me o all'avversario?
+       int bestscore = -1000000;
+       for(int i=0; i<M; i++){//check rows
+           for(int j=0; j<N; j++){//check columns
+               //is the spot available?
+               if(B.MNKCellState == "FREE"){
+                   //suppongo ai che massimizza e GFPlayer che minimizza
+                   int score = MiniMax(B, depth+1, false);//come gestisco depth?
+                   score=max(score, bestscore);
+                   int bestrow = i;
+                   int bestcol = j;
+                   MNKCell b = FC[bestrow][bestcol];
+                   B.markCell(b.i, b.j);
+                   }
+               }
+           }
+           return b;
+       }
+       else{
+           int bestscore = 1000000;
+       for(int i=0; i<M; i++){//check rows
+           for(int j=0; j<N; j++){//check columns
+               //is the spot available?
+               if(B.MNKCellState == "FREE"){
+                   //suppongo ai che massimizza e GFPlayer che minimizza
+                   int score = MiniMax(B, depth+1, true);//impl
+                   score=min(score, bestscore);
+                   int bestrow = i;
+                   int bestcol = j;
+                   MNKCell b = FC[bestrow][bestcol];
+                   B.markCell(b.i, b.j);
+                   }
+               }
+           }
+           return b;
+       }
+   }
+}
+/*---------------------------- */
+	
     // FC array di celle libere 
     // MC array di celle gia occupate 
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) { // 2 liste -> MNKCell
@@ -73,7 +133,6 @@ public class GFPlayer implements MNKPlayer {
         if (FC.length == 1)
             return FC[0];
 
-      //wwww  
 
 
         //1)
