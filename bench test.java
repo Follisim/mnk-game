@@ -120,6 +120,40 @@ public class GFPlayer implements MNKPlayer {
 }
 /*---------------------------- */
 	
+// FC array di celle libere 
+
+public int AlphaBeta (MNKBoard B, MNKCell FC, int alfa, int beta ,Boolean Player){
+
+    if(profondità massima) then 
+        eval = evaluate(MNKBoard B);
+    else if (Player == true) {
+        eval = -10000;
+        for (lunghezza di FC ){
+            segno la prima cella libera dentro B, la cavo da FC
+            eval = max(eval, AlphaBeta(B,FC, alfa, beta, false))
+            alfa = Max(eval, alfa )
+            if (beta <= alfa)
+                        break;
+         
+        }
+    }else
+        eval= 10000;
+        for (lunghezza di FC){
+            segno la cella libera dentro B, la cavo da FC;
+            eval = min(eval, AlfaBeta(B,FC,alfa,beta,Player,true))
+            beta = min(eval,b)
+            if (beta <=alfa ){
+                break;
+
+            }
+
+        } 
+return eval;
+}
+
+
+/*---------------------------- */
+	
     // FC array di celle libere 
     // MC array di celle gia occupate 
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) { // 2 liste -> MNKCell
