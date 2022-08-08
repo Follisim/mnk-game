@@ -59,7 +59,7 @@ public class GFPlayer implements MNKPlayer {
         yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
     }
 	
-	/*------------------------ */
+	/*-------------------------------------------------------------------------------------------------- */
     int min(int a, int b){
         if(a<b)return a;
         else return b;
@@ -118,7 +118,7 @@ public class GFPlayer implements MNKPlayer {
        }
    }
 }
-/*---------------------------- */
+/*----------------------------------------------------------------------------------------------------- */
 	
 // FC array di celle libere 
 
@@ -152,7 +152,7 @@ return eval;
 }
 
 
-/*---------------------------- */
+/*--------------------------------------------------------------------- */
 	
     // FC array di celle libere 
     // MC array di celle gia occupate 
@@ -231,6 +231,34 @@ return eval;
         
     }
 
+/*--------------------------------------------------------------------- */
+	//due concetti preliminari 
+	//mossa sicura : situazione di vittoria sicura, quando una fila di lunghezza k-1 ha le estremità libre 
+	//mossa quasi sicura : situazione di vittoria quasi sicura, quando otteniamo una fila di lunghezza k-2 con entrambe le estremità libere 
+				
+	
+	// pseudocodice di selectCell
+	
+	
+	 public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) 
+	 	if( unica mossa disponibile) 
+			return unica mossa ;
+		if( prima mossa della partita AND rispetta i criteri M >= K+2 e N >= K +1 )
+			return mossa 2,2 ;  
+		creo un queue di FC orninato in base a qualcosa //non so ancora cosa ma per velocizzare la ricerca di una mossa eficace è meglio orninarle secondo qualche priorità
+		Verifico vittorie/perdite immediate e Mosse sicure 
+	 	calcolo la massima profondita //secondo la grandezza della mappa 
+			r = -inf
+			for ogni mossa libera do 
+				i = AlfhaBeta (mossa, depth , -inf , +inf)
+				r = max(r, a) 
+			endfor
+		return mossa scelta 
+				
+	 
+	 
+	 
+	
 
 /*import java.util.ArrayDeque;
 import java.util.Queue;
