@@ -122,28 +122,28 @@ public class GFPlayer implements MNKPlayer {
 	
 // FC array di celle libere 
 
-public int AlphaBeta (MNKBoard B, MNKCell FC, int alfa, int beta ,Boolean Player){
+public int AlphaBeta (MNKBoard B, MNKCell FC,profondita, alfa, beta ,Boolean Massimizza){
 
-    if(profondità massima) then 
-        eval = evaluate(MNKBoard B);
-    else if (Player == true) {
+    if(profondità = 0  O nodo terminato ) then 
+        Return valore euristico del nodo
+    else if (Massimizza) { // true massimizza 
         eval = -10000;
-        for (lunghezza di FC ){
+        for (lunghezza di FC ){// figlio del nodo 
             segno la prima cella libera dentro B, la cavo da FC
-            eval = max(eval, AlphaBeta(B,FC, alfa, beta, false))
+            eval = max(eval, AlphaBeta(B,FC,profondita - 1 , alfa, beta, false))
             alfa = Max(eval, alfa )
             if (beta <= alfa)
-                        break;
+                        break; // taglio secondo beta
          
         }
     }else
         eval= 10000;
         for (lunghezza di FC){
             segno la cella libera dentro B, la cavo da FC;
-            eval = min(eval, AlfaBeta(B,FC,alfa,beta,Player,true))
+            eval = min(eval, AlfaBeta(B,FC,profondita - 1,alfa,beta, true))
             beta = min(eval,b)
             if (beta <=alfa ){
-                break;
+                break; // taglio secondo alfa 
 
             }
 
@@ -397,14 +397,3 @@ static void printLevelOrder(TreeNode root) {
  * 
  *  */
 
- /*1: function BFS(Tree T)
-2: Let Q be a new Queue
-3: if T != NIL then
-4: enqueue(Q,T)
-5: while Q.size != 0 do
-6: x = dequeue(Q)
-7: visit(x)
-8: tmp = x.first
-9: while tmp != NIL do
-10: enqueue(Q,tmp)
-*/
