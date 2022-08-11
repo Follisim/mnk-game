@@ -4,6 +4,8 @@ import java.util.Random;
 import java.util.Queue;
 import java.util.PriorityQueue;
 import java.util.LinkedList;
+import java.util.*;
+
 
 public class GFPlayer2 implements MNKPlayer {
     
@@ -49,25 +51,50 @@ public class GFPlayer2 implements MNKPlayer {
 
      //sort
      mergeSort(FC);
-     return FC[0];
-
-        //riempimento coda con posizioni di celle libere
-        
-        //Queue Q = new LinkedList<MNKCell>(); 
-        //    for(int j=0; j<FC.length; j++){
-        //        Q.add(FC[j]);        
-        //    }
-
-      //  MNKCell c = Q.poll();
-        
-
-
-      //  B.markCell(c.i, c.j); 
-  
-        
-    }
+     
     
+ 
+     return FC[0] ;    
+    }
+  
 
+    public int evaluate(MNKBoard B, MNKCell FC) {
+        MNKCell c = FC;
+        if (B.markCell(c.i, c.j) == myWin)
+            return 1;
+        else if (B.markCell(c.i, c.j) == yourWin)
+            return -1;
+        else
+            return 0;
+    }
+
+
+    public int AlphaBeta (MNKBoard B ,MNKCell FC[], boolean first, int Alpha, int Beta, int depth){
+      if(FC.length == 1 || depth==0){
+            return evaluate(B, FC[0] ); 
+      } 
+      
+      if(first ) {  //P1 massimizza
+        int eval = -10;
+            for (int i=0; i < FC.length;  i++ ){
+                B.markCell(FC[i].i,FC[i].j);
+                eval = Math.max (eval, AlphaBeta(B, FC, false, Alpha, Beta, depth -1 ));
+                Alpha = Math.max(Alpha, eval); 
+                if (Beta <= Alpha)
+                    break;
+        }
+        } else { 
+            int eval = 10;
+            for (int i=0;i < FC.length; i++ ){
+                B.markCell(FC[i].i,FC[i].j);
+                eval = Math.min (eval, AlfaBeta(B, true, Alpha, Beta, depth -1 ));
+                Beta = Math.min(Beta, eval);
+                if (Beta <= Alpha) 
+                    break;
+            }
+            return eval;
+        }
+    }
     // ordiniamo FC
     public static void mergeSort(MNKCell A[]) {
         mergeSortRec(A, 0, A.length - 1);
