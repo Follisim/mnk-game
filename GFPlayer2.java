@@ -14,6 +14,14 @@ public class GFPlayer2 implements MNKPlayer {
     private MNKGameState myWin;
     private MNKGameState yourWin;
     private int TIMEOUT;
+    private boolean first;
+    private int Alpha;
+    private int Beta;
+    
+    public class Cella_Valore{
+        int valEu;//valutazione euristica cella
+        MNKCell cella;
+    }
 
 
     public GFPlayer2() {
@@ -26,9 +34,12 @@ public class GFPlayer2 implements MNKPlayer {
         myWin = first ? MNKGameState.WINP1 : MNKGameState.WINP2;
         yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
         TIMEOUT = timeout_in_secs;
+        this.first = first ; 
+        
     }
 
-
+    //in selectCell prendiamo array FC[], lo ordiniamo con MergeSort,
+    //lo trasformiamo in coda con fromArrayToQueue, e lanciamo alphabeta
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         long start = System.currentTimeMillis();
         if (MC.length > 0) {
@@ -47,54 +58,118 @@ public class GFPlayer2 implements MNKPlayer {
     // Java program to implement sorting a
     // queue data structure
 
+    
 
 
-     //sort
-     mergeSort(FC);
+    //sort
+    mergeSort(FC);
+    // faccio una Queue 
+    Queue Q = new LinkedList<MNKCell>();
+    Q = fromArrayToQueue(FC);
+
+    Cella_Valore finalCel = new Cella_Valore();
+    finalCel.cella = FC[0];
+    finalCel.valEu = 0;
+    
+    while (!Q.isEmpty()){
+        MNKCell d = (MNKCell) Q.poll();
+        Cella_Valore h = new Cella_Valore();
+        System.out.println("1");
+        //B.markCell(d.i, d.j);
+        int eval = AlphaBeta(B, Q, first, -10, 10, );
+        System.out.println("AlphaBeta exit");
+        h.cella = d;
+        h.valEu = eval;
+        //B.unmarkCell();
+        if(finalCel.valEu < h.valEu){
+            finalCel = h;
+            
+        }
+         
+    }
      
     
- 
-     return FC[0] ;    
+    B.markCell(finalCel.cella.i,finalCel.cella.j );
+    System.out.println("last step");
+     return finalCel.cella;     
     }
   
-
-    public int evaluate(MNKBoard B, MNKCell FC) {
-        MNKCell c = FC;
-        if (B.markCell(c.i, c.j) == myWin)
-            return 1;
-        else if (B.markCell(c.i, c.j) == yourWin)
-            return -1;
-        else
-            return 0;
+    public Queue fromArrayToQueue(MNKCell FC[]){
+        Queue<MNKCell> Q = new LinkedList<MNKCell>();
+        for(int i=0; i<FC.length; i++){ //al contrario
+            Q.add(FC[i]);
+        }
+        return Q;
     }
 
+    public int evaluate(MNKBoard B, Queue <MNKCell> Q) {
+        System.out.println("evaluate");
+        //MNKCell c = FC;
+        MNKCell c = Q.poll();
+        //MNKCell C[] = Q.toArray();
+        //MNKCell c= C[0];
+       
+        
+        if (B.markCell(c.i, c.j) == myWin){
+            System.out.println("myWin");
+            return 1;
+        }
+        B.unmarkCell();
+        if (B.markCell(c.i, c.j) == yourWin){
+        System.out.println("yorWin");
+        B.unmarkCell();
+            return -1;
 
-    public int AlphaBeta (MNKBoard B ,MNKCell FC[], boolean first, int Alpha, int Beta, int depth){
-      if(FC.length == 1 || depth==0){
-            return evaluate(B, FC[0] ); 
+        }else
+            B.unmarkCell();
+            System.out.println("ret 0");
+            return 0;
+        
+    }
+
+    //in selectCell prendiamo array FC[], lo ordiniamo con MergeSort,
+    //lo trasformiamo in coda con metodo fromArrayToQueue, e lanciamo alphabeta
+    
+
+
+    public int AlphaBeta (MNKBoard B ,Queue <MNKCell> Q, boolean first, int Alpha, int Beta, int depth){
+        System.out.println("AlphaBeta");
+        int eval;
+        int count=0;//contiamo le markCell , accrochio per provare;
+      if(Q.size()== 1 || depth==0){
+            for(int i=0; i<=count; i++){
+             B.unmarkCell();
+            }
+            count =0;
+        return evaluate(B, Q); 
+            
       } 
       
       if(first ) {  //P1 massimizza
-        int eval = -10;
-            for (int i=0; i < FC.length;  i++ ){
-                B.markCell(FC[i].i,FC[i].j);
-                eval = Math.max (eval, AlphaBeta(B, FC, false, Alpha, Beta, depth -1 ));
+            eval = -10;
+            for (int i=0; i < Q.size();  i++ ){
+                count++;
+                MNKCell c = Q.poll();
+                B.markCell(c.i,c.j);
+                eval = Math.max (eval, AlphaBeta(B, Q, false, Alpha, Beta, depth -1 ));
                 Alpha = Math.max(Alpha, eval); 
                 if (Beta <= Alpha)
                     break;
-        }
+            }
         } else { 
-            int eval = 10;
-            for (int i=0;i < FC.length; i++ ){
-                B.markCell(FC[i].i,FC[i].j);
-                eval = Math.min (eval, AlfaBeta(B, true, Alpha, Beta, depth -1 ));
+            eval = 10;
+            for (int i=0;i < Q.size(); i++ ){
+                count++;
+                MNKCell c = Q.poll();
+                B.markCell(c.i,c.j);
+                eval = Math.min (eval, AlphaBeta(B, Q, true, Alpha, Beta, depth -1 ));
                 Beta = Math.min(Beta, eval);
                 if (Beta <= Alpha) 
                     break;
             }
-            return eval;
         }
-    }
+    return eval;
+}
     // ordiniamo FC
     public static void mergeSort(MNKCell A[]) {
         mergeSortRec(A, 0, A.length - 1);
@@ -123,6 +198,7 @@ public class GFPlayer2 implements MNKPlayer {
                 }else{
                     X[i++]=A[i2++];
                 }
+                
 
             }
 
@@ -138,57 +214,8 @@ public class GFPlayer2 implements MNKPlayer {
 
     }
 
-
-    /*-----------------------------------------------------------------
-    // HeapSort
-
-    public static void heapSort(MNKCell S[]) {
-
-        heapify(S, S.length - 1, 1);
-        for (int c = (S.length - 1); c > 0; c--) {
-            int k = findMax(S);
-            deleteMax(S, c);
-            S[c] = k;
-
-        }
-    }
-
-    private static void heapify(MNKCell S[], int n, int i) {
-        if (i > n)
-            return;
-        heapify(S, n, 2 * i); // crea heap radicato in S[2*i]
-        heapify(S, n, 2 * i + 1); // crea heap radicato in S[2*i+1]
-        fixHeap(S, n, i);
-    }
-
-    private static void fixHeap(MNKCell S[], int c, int i) {
-        int max = 2 * i; // figlio sinistro
-        if (2 * i > c)
-            return;
-        if (2 * i + 1 <= c && S[2 * i] < S[2 * i + 1])
-            max = 2 * i + 1; // figlio destro
-        if (S[i] < S[max]) {
-            int temp = S[max];
-            S[max] = S[i];
-            S[i] = temp;
-            fixHeap(S, c, max);
-        }
-    }
-
-    private static MNKCell findMax(MNKCell S[]) {
-        return S[1];
-    }
-
-    private static MNKCell deleteMax(MNKCell S[], int c) {
-        S[1] = S[c];
-        fixHeap(S, c, 1);
-    }
-*/
-
     public String playerName() {
-        return "R4nd0m++";
+        return "GFPlayer2";
     }
 }
-    
-
 
