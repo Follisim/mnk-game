@@ -6,19 +6,19 @@ public class Board {
     private int K;
 
     public int i;
-
     public int j;
 
     public MNKCellState[][] B;
 
-    public Board(int i, int j, int M, int N, int K) {
+    public Board(int M, int N, int K) {
         this.N = N;
         this.M = M;
         this.K = K;
-        this.i = i;
-        this.j = j;
-
-        B[i][j] = MNKCellState.FREE;
+       for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                B[i][j] = MNKCellState.FREE;
+            }
+        }
     }
 
     public Board(int i, int j, int M, int N, int K, MNKCellState s) {
@@ -43,9 +43,7 @@ public class Board {
 
   public boolean isWinningCell(int i, int j, MNKCellState s) {
 		
-		int n;
-
-		
+	int n;	
 	if (s == MNKCellState.FREE)
 		return false;
 
