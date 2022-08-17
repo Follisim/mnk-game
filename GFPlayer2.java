@@ -33,9 +33,7 @@ public class GFPlayer2 implements MNKPlayer {
     }
 
     public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-        // New random seed for each game
-        rand = new Random(System.currentTimeMillis());
-        this.B = new Board(M, N, K); //fare costruttore solo con M N K
+
         TIMEOUT = timeout_in_secs;
         this.first = first ;
         if(first){
@@ -52,10 +50,10 @@ public class GFPlayer2 implements MNKPlayer {
         
     }
 
-    //in selectCell prendiamo array FC[], lo ordiniamo con MergeSort,
-    //lo trasformiamo in coda con fromArrayToQueue, e lanciamo alphabeta
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
-        long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();//gestione del tempo da fare 
+        
+        Board B = new Board(M, N, K);
         if (MC.length > 0) {
             Boolean t = first;
             for(int i=0; i<MC.length; i++){
@@ -106,7 +104,7 @@ public class GFPlayer2 implements MNKPlayer {
     }
      
     System.out.println("return decisione finale");
-     return finalCel.cella;     
+        return finalCel.cella;     
     }
   
     public Queue fromArrayToQueue(MNKCell FC[]){
