@@ -8,9 +8,13 @@ import java.util.*;
 
 
 public class GFPlayer2 implements MNKPlayer {
-    
+
+    private int N;
+    private int M;
+    private int K;
+
     private Random rand;
-    private MNKBoard B;
+    
     private MNKGameState myWin;
     private MNKGameState yourWin;
     private int TIMEOUT;
@@ -30,11 +34,14 @@ public class GFPlayer2 implements MNKPlayer {
     public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
         // New random seed for each game
         rand = new Random(System.currentTimeMillis());
-        B = new MNKBoard(M, N, K);
+        B = new Board(M, N, K); //fare costruttore solo con M N K
         myWin = first ? MNKGameState.WINP1 : MNKGameState.WINP2;
         yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
         TIMEOUT = timeout_in_secs;
-        this.first = first ; 
+        this.first = first ;
+        this.M = M;
+        this.N = N; 
+        this.K = K;
         
     }
 
@@ -67,6 +74,9 @@ public class GFPlayer2 implements MNKPlayer {
     Queue Q = new LinkedList<MNKCell>();
     Q = fromArrayToQueue(FC);
 
+    creo la mappa B con MC la coda ;
+
+
     Cella_Valore finalCel = new Cella_Valore();
     finalCel.cella = FC[0];
     finalCel.valEu = 0;
@@ -74,13 +84,20 @@ public class GFPlayer2 implements MNKPlayer {
     while (!Q.isEmpty()){
         MNKCell d = (MNKCell) Q.poll();
         Cella_Valore h = new Cella_Valore();
-        System.out.println("1");
-        //B.markCell(d.i, d.j);
-        int eval = AlphaBeta(B, Q, first, -10, 10, );
+        Board B1 = new Board(d.i, d.j, M, N, K);
+        B1 = vecchia mappa ;
+
+        System.out.println("nuovo ciclo wile ");
+        
+
+
+        int eval = AlphaBeta(B1, Q, first, -10, 10, 5 );
+
         System.out.println("AlphaBeta exit");
+
         h.cella = d;
         h.valEu = eval;
-        //B.unmarkCell();
+   
         if(finalCel.valEu < h.valEu){
             finalCel = h;
             
@@ -132,7 +149,7 @@ public class GFPlayer2 implements MNKPlayer {
     
 
 
-    public int AlphaBeta (MNKBoard B ,Queue <MNKCell> Q, boolean first, int Alpha, int Beta, int depth){
+    public int AlphaBeta (Board B ,Queue <MNKCell> Q, boolean first, int Alpha, int Beta, int depth){
         System.out.println("AlphaBeta");
         int eval;
         int count=0;//contiamo le markCell , accrochio per provare;
@@ -219,3 +236,7 @@ public class GFPlayer2 implements MNKPlayer {
     }
 }
 
+
+//sistamare alphaBeta con la valutazione base win/lose 
+//gestire il tempo 
+//valutazione euristica tabelle 
