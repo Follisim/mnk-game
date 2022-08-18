@@ -51,7 +51,7 @@ public class Board {
 
 	// orizzontale
 	n = 1;
-	for (int k = j ; j - k >= 0 && B[i][j - k] == s; k++)
+	for (int k = 1 ; j - k >= 0 && B[i][j - k] == s; k++)
 		n++; 
 	for (int k = 1; j + k < N && B[i][j + k] == s; k++)
 		n++; 
