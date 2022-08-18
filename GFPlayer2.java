@@ -57,11 +57,9 @@ public class GFPlayer2 implements MNKPlayer {
         Board B = new Board(M, N, K);
         if (MC.length > 0) {
             Boolean t = first;
-            for(int i=0; i<MC.length; i++){
-                for(int j=0; j< MC.length; j++ ){
-                    B.markCell(i, j, t); //copy oll moves in B
+            for(int w=0; w<MC.length; w++){     
+                    B.markCell(MC[w].i, MC[w].j, t); //copy oll moves in B
                     t = !t;
-                }
             }
         } else {// first move 
            // fast selection 
