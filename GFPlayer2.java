@@ -12,7 +12,6 @@ public class GFPlayer2 implements MNKPlayer {
     private int N;
     private int M;
     private int K;
-    private Board B ;
     private MNKCellState Me;
     private MNKCellState Enemy;
     private Random rand;
@@ -33,7 +32,8 @@ public class GFPlayer2 implements MNKPlayer {
     }
 
     public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
-
+  
+        
         TIMEOUT = timeout_in_secs;
         this.first = first ;
         if(first){
@@ -50,9 +50,10 @@ public class GFPlayer2 implements MNKPlayer {
         
     }
 
+  
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
-        long start = System.currentTimeMillis();//gestione del tempo da fare 
-        
+        long start = System.currentTimeMillis(); //gestione del tempo ancora da fare 
+       
         Board B = new Board(M, N, K);
         if (MC.length > 0) {
             Boolean t = first;
@@ -74,7 +75,7 @@ public class GFPlayer2 implements MNKPlayer {
     //sort
     mergeSort(FC);
     // faccio una Queue 
-    Queue Q = new LinkedList<MNKCell>();
+    Queue<MNKCell> Q = new LinkedList<MNKCell>();
     Q = fromArrayToQueue(FC);
 
 
@@ -107,7 +108,7 @@ public class GFPlayer2 implements MNKPlayer {
         return finalCel.cella;     
     }
   
-    public Queue fromArrayToQueue(MNKCell FC[]){
+    public Queue<MNKCell> fromArrayToQueue(MNKCell FC[]){
         Queue<MNKCell> Q = new LinkedList<MNKCell>();
         for(int i=0; i<FC.length; i++){ //al contrario
             Q.add(FC[i]);
@@ -115,7 +116,7 @@ public class GFPlayer2 implements MNKPlayer {
         return Q;
     }
 
-    public int evaluate(Board B, Queue <MNKCell> Q) {
+    public int evaluate(Board B, Queue<MNKCell> Q) {
         System.out.println("evaluate");
         //MNKCell c = FC;
         MNKCell c = Q.poll();
