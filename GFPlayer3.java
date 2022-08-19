@@ -68,18 +68,29 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     for (int i = 0; i < MC.length; i++) {
         Z.add(MC[i]);
     }
-    double tmp;
+    
+       
+    CellaValore finalCell = new CellaValore();
+    finalCell.cell = FC[0];
+    finalCell.val = 0;
+
     for(MNKCell cell : H){
 
+        
         B.markCell(cell.i, cell.j, true);
         double e = AlphaBeta(H, B,false, -10, 10, 0);
         B.freeCell(cell.i, cell.j);
 
-        e = Math.max(tmp, e); 
-        tmp = e; 
+        CellaValore h = new CellaValore();
+        h.cell = cell;
+        h.val = e;
+
+        if(finalCell.val < h.val)
+            finalCell = h;
+       
     }
 
-    return 
+    return finalCell.cell;
 }
 
 public String playerName() {
@@ -90,7 +101,10 @@ public String playerName() {
 
 /*---------------------------------------------------------------------------------------------------- */
 
-
+public class CellaValore {
+    double val;
+    MNKCell cell;
+}
 
 public int evaluate(Board B, MNKCell c) {
 
