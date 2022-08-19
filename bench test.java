@@ -1,427 +1,150 @@
 package mnkgame;
 
-import java.util.Random;
-import java.util.Queue;
+import java.util.HashSet;
 import java.util.LinkedList;
-
-public class GFPlayer implements MNKPlayer {
-    private Random rand;
-    private MNKBoard B ;
-    private int TIMEOUT ;
-    private MNKGameState myWin;
-    private MNKGameState yourWin;
-    private int M, N, K;
-   
-   public class Coppia{
-        protected int level;
-        protected int val;
-    }
-
-    public class TreeNode{
-        Coppia node;
-        TreeNode First, Next;
-    }
-
-    //q.poll() toglie primo el in coda
-    //q.peek() vedo elemento dopo senza toglierlo dallla coda
-    //q.size() ritorna dimensione coda  
-    //q.contains(elem) ritorna true se presente, false altrimenti
-    //q.toArray()[1] ritorna elemento in pos 1 (converte in array) 
-
-       public int BFS(TreeNode T){
-        Queue<E> q = new LinkedList<E>(); 
-        if(T != null){
-            q.enqueue(q, T);
-        } 
-        do{
-            TreeNode x = q.dequeue(q);
-            q.visit(x);
-            TreeNode tmp=x.First;
-            do{
-            q.enqueue(q,tmp);
-            }while(tmp != null);
-        }while(q.size()!=0);
-    }
-   
-   
-   
-    public GFPlayer(){}// empty constructor
-
-    
-    public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) { //inizializzazione 
-        this.M = M; 
-        this.N = N;
-        this.K = K;
-        B   = new MNKBoard(M,N,K);
-        rand = new Random(System.currentTimeMillis());
-        TIMEOUT = timeout_in_secs;
-        myWin = first ? MNKGameState.WINP1 : MNKGameState.WINP2;
-        yourWin = first ? MNKGameState.WINP2 : MNKGameState.WINP1;
-    }
-	
-	/*-------------------------------------------------------------------------------------------------- */
-    int min(int a, int b){
-        if(a<b)return a;
-        else return b;
-    }
-
-    int max(int a, int b){
-        if(a>b)return a;
-        else return b;
-    }
-
-    //Nota Bene, da capire come gestire e dove inizializzare depth, e come capire il turno da mettere in
-    //isMaximizing 
-    //int depth=0;
-    int MiniMax(MNKBoard B, int depth, bool isMaximizing ){
-        //caso base
-       //one possible move.
-       if (FC.length == 1) {              
-       return FC[0];
-       }
-       else{
-       if (isMaximizing){//come capisco se tocca a me o all'avversario?
-       int bestscore = -1000000;
-       for(int i=0; i<M; i++){//check rows
-           for(int j=0; j<N; j++){//check columns
-               //is the spot available?
-               if(B.MNKCellState == "FREE"){
-                   //suppongo ai che massimizza e GFPlayer che minimizza
-                   int score = MiniMax(B, depth+1, false);//come gestisco depth?
-                   score=max(score, bestscore);
-                   int bestrow = i;
-                   int bestcol = j;
-                   MNKCell b = FC[bestrow][bestcol];
-                   B.markCell(b.i, b.j);
-                   }
-               }
-           }
-           return bestscore;
-       }
-       else{
-           int bestscore = 1000000;
-       for(int i=0; i<M; i++){//check rows
-           for(int j=0; j<N; j++){//check columns
-               //is the spot available?
-               if(B.MNKCellState == "FREE"){
-                   //suppongo ai che massimizza e GFPlayer che minimizza
-                   int score = MiniMax(B, depth+1, true);//impl
-                   score=min(score, bestscore);
-                   int bestrow = i;
-                   int bestcol = j;
-                   MNKCell b = FC[bestrow][bestcol];
-                   B.markCell(b.i, b.j);
-                   }
-               }
-           }
-           return bestscore;
-       }
-   }
-}
-/*----------------------------------------------------------------------------------------------------- */
-	
-// FC array di celle libere 
-
-public int AlphaBeta (MNKBoard B, MNKCell FC,profondita, alfa, beta ,Boolean Massimizza){
-
-    if(profondità = 0  O nodo terminato ) then 
-        Return valore euristico del nodo
-    else if (Massimizza) { // true massimizza 
-        eval = -10000;
-        for (lunghezza di FC ){// figlio del nodo 
-            segno la prima cella libera dentro B, la cavo da FC
-            eval = max(eval, AlphaBeta(B,FC,profondita - 1 , alfa, beta, false))
-            alfa = Max(eval, alfa )
-            if (beta <= alfa)
-                        break; // taglio secondo beta
-         
-        }
-    }else
-        eval= 10000;
-        for (lunghezza di FC){
-            segno la cella libera dentro B, la cavo da FC;
-            eval = min(eval, AlfaBeta(B,FC,profondita - 1,alfa,beta, true))
-            beta = min(eval,b)
-            if (beta <=alfa ){
-                break; // taglio secondo alfa 
-
-            }
-
-        } 
-return eval;
-}
-
-
-/*--------------------------------------------------------------------- */
-	
-    // FC array di celle libere 
-    // MC array di celle gia occupate 
-    public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) { // 2 liste -> MNKCell
-        long start = System.currentTimeMillis();
-
-        if (MC.length > 0) {
-            MNKCell c = MC[MC.length - 1]; // Recover the last move from MC
-            B.markCell(c.i, c.j); // Save the last move in the local MNKBoard
-        }
-        //one possible move.
-        if (FC.length == 1)
-            return FC[0];
-
-
-
-        //1)
-       
-        for (MNKCell d : FC) {
-        
-            if ((System.currentTimeMillis() - start) / 1000.0 > TIMEOUT * (99.0 / 100.0)) {
-                MNKCell c = FC[rand.nextInt(FC.length)];
-                B.markCell(c.i, c.j);
-                return c;
-                
-            } else if (B.markCell(d.i, d.j) == myWin) {
-                return d;
-            } else {
-                B.unmarkCell();
-            } 
-        }
-            System.out.println("qui 1");
-        //2) // non funziona non capisco perche 
-       
-        MNKCell c = FC[0];
-        B.markCell(c.i,c.j);
-        for (int k = 1; k < FC.length; k++){
-            if((System.currentTimeMillis()-start)/1000.0 > TIMEOUT*(99.0/100.0)) {
-				System.out.println("qui 2");
-                return c;
-
-			} else {
-                MNKCell d = FC[k];
-                if(B.markCell(d.i, d.j) == yourWin) {
-                    B.unmarkCell();
-                    B.unmarkCell();
-                    B.markCell(d.i, d.j);
-                    System.out.println("qui 3");
-                    return d;
-                } else {
-                    B.unmarkCell();
-                    System.out.println("qui 4");
-                }
-            }
-        }
-        System.out.println("qui 5");
-        B.unmarkCell();
-        MNKCell d = FC[1];
-        B.markCell(d.i, d.j);
-        if(B.markCell(c.i, c.j)== yourWin) {
-            B.unmarkCell();
-            B.unmarkCell();
-            B.markCell(c.i, c.j);
-            System.out.println("qui 6");
-            return c;
-        }
-
- 
-
-            //  System.out.println(FC );
-            int pos = rand.nextInt(FC.length);
-            System.out.println("v = "+ pos);
-             c = FC[pos];
-
-        return c;
-        
-    }
-
-/*--------------------------------------------------------------------- */
-	//due concetti preliminari 
-	//mossa sicura : situazione di vittoria sicura, quando una fila di lunghezza k-1 ha le estremità libre 
-	//mossa quasi sicura : situazione di vittoria quasi sicura, quando otteniamo una fila di lunghezza k-2 con entrambe le estremità libere 
-				
-	
-	// pseudocodice di selectCell
-	
-	
-	 public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) 
-	 	if( unica mossa disponibile) 
-			return unica mossa ;
-		if( prima mossa della partita AND rispetta i criteri M >= K+2 e N >= K +1 )
-			return mossa 2,2 ;  
-		creo un queue di FC orninato in base a qualcosa //non so ancora cosa ma per velocizzare la ricerca di una mossa eficace è meglio orninarle secondo qualche priorità
-		Verifico vittorie/perdite immediate e Mosse sicure 
-	 	calcolo la massima profondita //secondo la grandezza della mappa 
-			r = -inf
-			for ogni mossa libera do 
-				i = AlfhaBeta (mossa, depth , -inf , +inf)
-				r = max(r, a) 
-			endfor
-		return mossa scelta 
-				
-	 
-	 
-	 
-	
-
-/*import java.util.ArrayDeque;
 import java.util.Queue;
-public class Demo {
-    public static void main(String[] args) {
-      Queue<String> aq = new ArrayDeque<String>(); 
-      aq.add("first"); 
-      aq.add("second");
-      aq.add("third");
-      aq.add("fourth");
-      System.out.println("Added Queue in memory: " +aq);     
-    }
-}*/
 
-    //implementazioene AlphaBeta con profondita limitata
-    //taglio alberi ricorrenti 
-    //valutazione di un nodo dell'albero (fase intermedia di gioco)
-            
+public class prove implements MNKPlayer{
+    private int N;
+    private int M;
+    private int K;
+    private MNKCellState Me;
+    private MNKCellState Enemy;
     
 
-    public String playerName() {// nome player 
-        return "G.F.Player";
+    private int TIMEOUT;
+    private boolean first;
+    
+public prove(){}
+
+public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
+
+    TIMEOUT = timeout_in_secs;
+    this.first = first;
+    if (first) {
+        Me = MNKCellState.P1;
+        Enemy = MNKCellState.P2;
+    } else {
+        Me = MNKCellState.P2;
+        Enemy = MNKCellState.P1;
     }
 
-    /*
-     * per capire il quadrato di gioco.
-     * if(siamo i primi)
-     *      min e max su tutti i k per MC[k.i], MC[k.j] ; k= numeri dispari
-     * else k= n pari;
-     * 
-     * 
-     * ------
-     * valutazione di un tabella non completa
-     * 
-     * function eval(MNKCell MC[] oppure una matrice creata da noi oppure B ) -> int
-     *      controllo se vinco o perdo.
-     * 
-     *      4 controlli
-     * 
-     *      sx-dx orizzontale
-     *      sx-dx obliquo
-     *      up-down obliquo
-     *      alto-basso 
-     *      
-     *             es     5 5 4 game 
-     *                  
-     *     sx-dx             | / | O | O | X | X |   
-     *                         0   +1 +1  
-     *                         ^ mossa sbagliata 
-     * 
-     * 
-     * 
-     * 
-     * 
-     * 
-     * 
-     */
-/*    
+    this.M = M;
+    this.N = N;
+    this.K = K;
 
-     if(FC.length==1)return FC[0];
+}
 
-    if(MC.length>1)
+public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
+    Board B = new Board(M, N, K);
+    if (MC.length > 0) {
+        Boolean t = first;
+        for (int w = 0; w < MC.length; w++) {
+            B.markCell(MC[w].i, MC[w].j, t); // copy oll moves in B
+            t = !t;
 
-    {
-        MNKCell c = MC[MC.length - 2];
-        if (c.i + 1 < M) {
-            MNKCell d = new MNKCell(c.i + 1, c.j);
-            if (d.state == MNKCellState.FREE)// metti la mossa di fianco
-                System.out.println("returned d1");
-            return d;
-        } else if (c.i - 1 >= M) {
-            MNKCell d = new MNKCell(c.i - 1, c.j);
-            if (d.state == MNKCellState.FREE)
-                System.out.println("returned d2");
-            return d;
-        } // else if()
+        }
+    } else {// first move
+        // fast selection
     }
-*/
 
-     /*
-     * for (int k = 0; k < FC.length; k++){
-     *      MNKCell d = FC[k];
-     *      if (B.markCell(d.i,d.j)== yourWin ){
-     *          B.unmarkCell();
-     *          B.markCell(d.i, d.j);
-     *          return d;
-     *      } else {
-     *      }
-     * }
-     */
+    if (FC.length == 1)
+        return FC[0];
+
+    
+    // faccio una Queue
+    HashSet<MNKCell> H = new HashSet<MNKCell>();
+    for (int i = 0; i < FC.length; i++){
+        H.add(FC[i]);
+    }
+
+    
+     
+    for(MNKCell c :H){
+    
+    //     H.remove(c);
+   // c = new MNKCell(c.i, c.j, Me);
+    //B.markCell(c.i, c.j, true);
+    //stampa(H,c);  
+
+   
+
+    System.out.println("H   " + H.size());    
+    System.out.println(c.i + "   " + c.j);
+    }
+
+    return FC[0];
 }
 
 
-/*
-function BFS(Tree T)
-2: Let Q be a new Queue
-3: if T != NIL then
-4: enqueue(Q,T)
-5: while Q.size != 0 do
-6: x = dequeue(Q)
-7: visit(x)
-8: if x.left != NIL then
-9: enqueue(Q, x.left)
-10: if x.right != NIL then
-11: enqueue(Q, x.right) */
-
-/*static class TreeNode {
-       int data;
-       TreeNode left, right;
- 
-       public TreeNode(int key) {
-           data = key;
-           left = right = null;
-       }
-   }
-
-
-/*
-static void printLevelOrder(TreeNode root) {
-      Queue<TreeNode> queue = new LinkedList<TreeNode>();
-      queue.add(root);
-      while (!queue.isEmpty()) {
-          TreeNode temp = queue.poll();
-          System.out.print(temp.data + " ");
- 
-          // add left child to the queue 
-          if (temp.left != null) {
-              queue.add(temp.left);
-          }
- 
-          //add right right child to the queue 
-          if (temp.right != null) {
-              queue.add(temp.right);
-          }
-      }
-  } 
-  
-  */
+public void stampa(HashSet<MNKCell> H,MNKCell c){
+    stampa(H, H.iterator().next());
+        System.out.println(c.i+"   " + c.j);
+        H.remove(c);
+    }
 
 
 
-/*
- * F (Nodo T)-> int
- * 
- * queue q <- new Queue()
- * q.enqueuq([T,0])
- * int livelloCorrente <- 0
- *  
- * while q.first != null do
- *      //estrae dalla coda una nuova coppia [N,1]
- *      [N,l] <- q.dequeue()
- *      if l != livellocorrente then
- *          //N è il primo nodo di un nuovo livello l 
- *          livelloCorrente <- l 
- *      else 
- *          // N è un nodo dell'attuale livello 
- *      end
- * 
- *      for x appartenente N.children do 
- *          q.enqueue([x,l+1])
- *      end
- * end 
- * 
- * 
- *  */
+
+
+public static void mergeSort(MNKCell A[]) {
+        mergeSortRec(A, 0, A.length - 1);
+    }
+
+    private static void mergeSortRec(MNKCell A[], int i, int f) {
+        if (i >= f)
+            return;
+        int m = (i + f) / 2;
+        mergeSortRec(A, i, m);
+        mergeSortRec(A, m + 1, f);
+        merge(A, i, m, f);
+    }
+
+    private static void merge(MNKCell A[], int i1, int f1, int f2) { // i1 = valore piu basso, f1= valore di mezzo, f2 = valore piu alto 
+        MNKCell[] X = new MNKCell[f2 - i1 + 1]; 
+        int i = 0, i2 = f1 + 1, k = i1;
+        while (i1 <= f1 && i2 <= f2) { // f1 -> low   f2 -> high
+            if (A[i1].i < A[i2].i){// i-> righe 
+                X[i++] = A[i1++];
+            }else if (A[i1].i > A[i2].i){
+                X[i++] = A[i2++];
+            }else {
+                if (A[i1].j < A[i2].j){
+                    X[i++] = A[i1++];
+                }else{
+                    X[i++]=A[i2++];
+                }
+                
+
+            }
+
+        }
+        if (i1 <= f1)
+            for (int j = i1; j <= f1; j++, i++)
+                X[i] = A[j];
+        else
+            for (int j = i2; j <= f2; j++, i++)
+                X[i] = A[j];
+        for (int t = 0; k <= f2; k++, t++)
+            A[k] = X[t];
+
+    }
+
+
+
+    public Queue<MNKCell> fromArrayToQueue(MNKCell FC[]) {
+        Queue<MNKCell> Q = new LinkedList<MNKCell>();
+        for (int i = 0; i < FC.length; i++) { // al contrario
+            Q.add(FC[i]);
+        }
+        return Q;
+    }
+
+
+    public String playerName() {
+        return "GFPlayer2";
+    }
+
+}
+
 
