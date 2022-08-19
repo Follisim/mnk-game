@@ -37,13 +37,18 @@ public class Board {
             B[i][j] = MNKCellState.P2;
     }
 
+	public void freeCell(int i, int j){
+        	B[i][j] = MNKCellState.FREE;
+    	}
 
 
-    public MNKCellState getCell(int i, int j) {// return lo stato della cella
-        return B[i][j];
-    }
 
-  public boolean isWinningCell(int i, int j, MNKCellState s) {
+
+    	public MNKCellState getCell(int i, int j) {// return lo stato della cella
+        	return B[i][j];
+    	}
+
+ public boolean isWinningCell(int i, int j, MNKCellState s) {
 		
 	int n;
 	if (s == MNKCellState.FREE)
