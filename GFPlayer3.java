@@ -48,8 +48,10 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
             t = !t;
 
         }
-    } else {// first move
-        // fast selection
+    } else {// mossa al centro della tabella
+        MNKCell c = new MNKCell((int) Math.ceil( M/2 ) , (int) Math.ceil( N/2 ));
+        return c; 
+        
     }
 
     // last move
@@ -192,4 +194,4 @@ public int AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, int Alpha, int Beta,
 }
 
 }
-    
+
