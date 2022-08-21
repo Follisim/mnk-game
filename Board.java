@@ -4,18 +4,26 @@ public class Board {
     private int N;
     private int M;
     private int K;
+    private MNKCellState Me;
+    private MNKCellState Enemy;
 
     public int i;
     public int j;
+    public boolean MyWin;
+    public boolean EnemyWin;
 
     public MNKCellState[][] B;
 
-    public Board(int M, int N, int K ){
+    public Board(int M, int N, int K ,boolean F){
         this.N = N;
         this.M = M;
         this.K = K;
+        Me = F ? MNKCellState.P1 : MNKCellState.P2;
+        Enemy = F ? MNKCellState.P2 : MNKCellState.P1;
+        MyWin = false;
+        EnemyWin = false;
         B = new MNKCellState[M][N];
-                for (int i = 0; i < M; i++) {
+        for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
                 B[i][j] = MNKCellState.FREE;
             }
@@ -23,32 +31,32 @@ public class Board {
     }
 
 
-    public Board(int i, int j, int M, int N, int K, MNKCellState s) {
-        this.i = i;
-        this.j = j;
-        B[i][j] = s;
-
-    }
-
     public void markCell(int i, int j, boolean p) {
-        if (p)
+        if (p){
             B[i][j] = MNKCellState.P1;
-        else
+            MyWin = isWinningCell(i, j, Me);
+        }else{
             B[i][j] = MNKCellState.P2;
+            EnemyWin = isWinningCell(i, j, Enemy);
+        }
+            
+
+        
     }
 
-	public void freeCell(int i, int j){
-        	B[i][j] = MNKCellState.FREE;
-    	}
+    public void freeCell(int i, int j){
+        B[i][j] = MNKCellState.FREE;
+    }
 
 
 
+    public MNKCellState getCell(int i, int j) {// return lo stato della cella
+        return B[i][j];
+    }
 
-    	public MNKCellState getCell(int i, int j) {// return lo stato della cella
-        	return B[i][j];
-    	}
 
- public boolean isWinningCell(int i, int j, MNKCellState s) {
+
+  public boolean isWinningCell(int i, int j, MNKCellState s) {
 		
 	int n;
 	if (s == MNKCellState.FREE)
@@ -96,4 +104,6 @@ public class Board {
   
     return false;
   }
+
+
 }
