@@ -2,7 +2,6 @@ package mnkgame;
 
 import java.util.Random;
 import java.util.Queue;
-import java.util.PriorityQueue;
 import java.util.LinkedList;
 import java.util.*;
 
@@ -28,21 +27,15 @@ public class GFPlayer2 implements MNKPlayer {
     }
 
 
-    public GFPlayer2() {
-    }
+    public GFPlayer2() {}
 
     public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
   
         
         TIMEOUT = timeout_in_secs;
-        this.first = first ;
-        if(first){
-            Me = MNKCellState.P1;
-            Enemy = MNKCellState.P2; 
-        }else{
-            Me = MNKCellState.P2;
-            Enemy = MNKCellState.P1;
-        }
+        this.first = first;
+        Me = first ? MNKCellState.P1 : MNKCellState.P2;
+        Enemy = first ? MNKCellState.P2 : MNKCellState.P1;
 
         this.M = M;
         this.N = N; 
@@ -54,12 +47,13 @@ public class GFPlayer2 implements MNKPlayer {
     public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         long start = System.currentTimeMillis(); //gestione del tempo ancora da fare 
        
-        Board B = new Board(M, N, K);
+        Board B = new Board(M, N, K, first);
         if (MC.length > 0) {
             Boolean t = first;
-            for(int w=0; w<MC.length; w++){     
+            for(int w=0; w<MC.length; w++){
                     B.markCell(MC[w].i, MC[w].j, t); //copy oll moves in B
                     t = !t;
+                
             }
         } else {// first move 
            // fast selection 
@@ -81,28 +75,37 @@ public class GFPlayer2 implements MNKPlayer {
     finalCel.cella = FC[0];
     finalCel.valEu = 0;
     
-    while (!Q.isEmpty()){
-        MNKCell d = (MNKCell) Q.poll();
-        Cella_Valore h = new Cella_Valore();
-        Board B1 = new Board(M, N, K);
-        B1 = B;
-        System.out.println("nuovo ciclo wile ");
-        
-        int eval = AlphaBeta(B1, Q, first, -10, 10, 5 );
+    for(int i = 0; i<FC.length ; i++){ 
 
-        System.out.println("AlphaBeta exit");
+         MNKCell d =  Q.poll();
+        Cella_Valore h = new Cella_Valore();
+        Board B1 = new Board(M, N, K, first);
+        B1 = B;
+        B1.markCell(d.i, d.j, true);
+   
+        
+        System.out.println("Q   "+Q.size());
+        
+        
+        int eval = AlphaBeta(B1, Q ,true, -10, 10, 10 );
+
+        System.out.println("Q   "+Q.size());
+
+         Q.add(d);
+
+        System.out.println("eval "+ eval);
 
         h.cella = d;
         h.valEu = eval;
    
-        if(finalCel.valEu < h.valEu){
+        if(finalCel.valEu <= h.valEu){
             finalCel = h;
             
         }
          
     }
      
-    System.out.println("return decisione finale");
+    
         return finalCel.cella;     
     }
   
@@ -114,22 +117,18 @@ public class GFPlayer2 implements MNKPlayer {
         return Q;
     }
 
-    public int evaluate(Board B, Queue<MNKCell> Q) {
-        System.out.println("evaluate");
-        //MNKCell c = FC;
-        MNKCell c = Q.poll();
-        //MNKCell C[] = Q.toArray();
-        //MNKCell c= C[0];
+    public int evaluate(Board B, MNKCell c) {
+        
        
         
         if (B.isWinningCell(c.i, c.j, Me)){
-            System.out.println("myWin");
+            
             return 1;
         }else if (B.isWinningCell(c.i, c.j, Enemy)){
-            System.out.println("yorWin");
+            
             return -1;
         }else
-            System.out.println("ret 0");
+            
             return 0;
         
     }
@@ -139,30 +138,37 @@ public class GFPlayer2 implements MNKPlayer {
     
 
 
-    public int AlphaBeta (Board B ,Queue <MNKCell> Q, boolean first, int Alpha, int Beta, int depth){
-        System.out.println("AlphaBeta");
+    public int AlphaBeta (Board B ,Queue <MNKCell> Q, boolean t, int Alpha, int Beta, int depth){
+       // System.out.println(Q.size());
         int eval;
+        
       if(Q.size()== 1 || depth==0){
-        return evaluate(B, Q);     
+        return evaluate(B, Q.poll());     
       } 
       
-      if(first ) {  //P1 massimizza
+      if(t) {  //P1 massimizza
             eval = -10;
+            int l = -10;
             for (int i=0; i < Q.size();  i++ ){
                 MNKCell c = Q.poll();
                 B.markCell(c.i,c.j,true);
                 eval = Math.max (eval, AlphaBeta(B, Q, false, Alpha, Beta, depth -1 ));
-                Alpha = Math.max(Alpha, eval); 
+                l = Math.max(l, eval);
+                Alpha = Math.max(Alpha, l); 
+                Q.add(c);
                 if (Beta <= Alpha)
                     break;
             }
         } else { 
             eval = 10;
+            int l = 10;
             for (int i=0;i < Q.size(); i++ ){
                 MNKCell c = Q.poll();
                 B.markCell(c.i,c.j,false);
                 eval = Math.min (eval, AlphaBeta(B, Q, true, Alpha, Beta, depth -1 ));
-                Beta = Math.min(Beta, eval);
+                l = Math.min(l, eval);
+                Beta = Math.min(Beta,l);
+                Q.add(c);
                 if (Beta <= Alpha) 
                     break;
             }
