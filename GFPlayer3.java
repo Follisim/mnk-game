@@ -85,17 +85,26 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     CellaValore finalCell = new CellaValore();
     finalCell.cell = FC[0];
     finalCell.val = 0;
-    
+
+    /*------------- */ 
     int depth = 2;  //da calcolare
     if(depth==1){
-        LinkedList L = new LinkedList<MNKCell>();
+        LinkedList <MNKCell> L = new LinkedList<MNKCell>();
         // aggiungo le caselle per la vittoria 
         //funzione da chiamare in caso sia finito il tempo 
-        // return testa della lista 
-        for()
-        L.add(B);
-    }
+        // return testa della lista
+        if(B.getCell(M/2, N/2)==MNKCellState.FREE){
 
+            for(int x = M/2; x<M; x++){ //posizioni orizzontali verso dx
+            MNKCell c = new MNKCell(x, N/2);
+            L.add(c);
+            }
+            
+        MNKCell w = L.getFirst();
+        return w;
+        }
+    }
+    /*------------- */
     for(int i=0; i < FC.length; i++){
 
        // System.out.println("ciclo for ");
@@ -114,7 +123,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
        
     }
 
-    return finalCell.cell;
+    return finalCell.cell;   
 }
 
 public String playerName() {
