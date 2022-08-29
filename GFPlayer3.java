@@ -9,15 +9,15 @@ public class GFPlayer3 implements MNKPlayer{
 
     private int N;
     private int M;
-    private int K;
     private Board B;
     private MNKCellState Me;
     private MNKCellState Enemy;
+    private LinkedList<MNKCell> L;
 
     private int TIMEOUT;
     private boolean first;
-    private int Alpha;
-    private int Beta;
+    private double Alpha;
+    private double Beta;
     
 
 
@@ -31,80 +31,74 @@ public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) 
     Enemy = first ? MNKCellState.P2 : MNKCellState.P1;
 
     this.B = new Board(M, N, K, first);
+    L = new LinkedList<MNKCell>();
+    shortcutMoves(L,M,N,K-1);
+    // System.out.println(L);
 
     this.M = M;
     this.N = N;
-    this.K = K;
+
 
 }
 
 public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
+
+
     long start = System.currentTimeMillis(); // gestione del tempo ancora da fare
 
     
     if (MC.length > 0) {
         Boolean t = first;
+        //System.out.println("lengt"+MC.length);
+        B.freeMapp();
         for (int w = 0; w < MC.length; w++) {
-            B.markCell(MC[w].i, MC[w].j, t,t); // copy oll moves in B
-            // cambiare questo markCell perche non ci serve controllare myWin enemyWin 
-            
+            B.markCell(MC[w].i, MC[w].j, t,t); // copy oll moves in B  // t = false -> me= P2  Enemy= P1   
             t = !t;
-
+            // System.out.println(MC[w]);
         }
-    } else {// mossa al centro della tabella
-        MNKCell c = new MNKCell((int) Math.ceil( M/2 ) , (int) Math.ceil( N/2 ));
-        return c; 
         
+        //B.printMap();
+    } else {// mossa al centro della tabella
+          return L.poll(); 
     }
 
     // last move
     if (FC.length == 1)
         return FC[0];
 
+    
+    
+
 
   
-    //  libere HashSet
+    // HashSet celle libere 
     HashSet<MNKCell> H = new HashSet<MNKCell>((int) 21 );
     for (int i = 0; i < FC.length; i++){
         H.add(FC[i]);
-        if (B.isWinningCell(FC[i].i, FC[i].j, Me))
-                return FC[i];
+        if (B.isWinningCell(FC[i].i, FC[i].j, Me)){
+            return FC[i];
+        }
+            
     }
     for (int i = 0; i < FC.length; i++) {
-        H.add(FC[i]);
-        if (B.isWinningCell(FC[i].i, FC[i].j, Enemy))
+        if (B.isWinningCell(FC[i].i, FC[i].j, Enemy)){
             return FC[i];
+        }
     }
 
     // occupate HashSet
     HashSet<MNKCell> Z = new HashSet<MNKCell>((int) 21);
-    for (int i = 0; i < MC.length; i++) {
+        for (int i = 0; i < MC.length; i++) {
         Z.add(MC[i]);
     }
     
     CellaValore finalCell = new CellaValore();
-    finalCell.cell = FC[0];
+    finalCell.cell = FC[1];
     finalCell.val = 0;
+    
+    int depth = 4;  //da calcolare
 
-    /*------------- */ 
-    int depth = 2;  //da calcolare
-    if(depth==1){
-        LinkedList <MNKCell> L = new LinkedList<MNKCell>();
-        // aggiungo le caselle per la vittoria 
-        //funzione da chiamare in caso sia finito il tempo 
-        // return testa della lista
-        if(B.getCell(M/2, N/2)==MNKCellState.FREE){
 
-            for(int x = M/2; x<M; x++){ //posizioni orizzontali verso dx
-            MNKCell c = new MNKCell(x, N/2);
-            L.add(c);
-            }
-            
-        MNKCell w = L.getFirst();
-        return w;
-        }
-    }
-    /*------------- */
     for(int i=0; i < FC.length; i++){
 
        // System.out.println("ciclo for ");
@@ -115,15 +109,25 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         B.freeCell(FC[i].i, FC[i].j);
 
         CellaValore h = new CellaValore();
+        //System.out.println(e);
         h.cell = FC[i];
         h.val = e;
-
+        if(h.val< 0){
+            h.val= -(h.val+ 0.1);
+        }
         if(finalCell.val < h.val)
             finalCell = h;
        
     }
-
-    return finalCell.cell;   
+    //System.out.println(finalCell.val);
+    if(finalCell.val == 0){
+        MNKCell c = L.poll();
+        while(B.getCell(c.i, c.j) != MNKCellState.FREE)
+            c = L.poll();
+        return c;
+    }
+    //System.out.println("valore cella finale "+finalCell.val);
+    return finalCell.cell;
 }
 
 public String playerName() {
@@ -134,40 +138,25 @@ public String playerName() {
 
 /*---------------------------------------------------------------------------------------------------- */
 
-public class CellaValore {
+private class CellaValore {
     double val;
     MNKCell cell;
 }
 
 
-public int evaluate(Board B, MNKCell c) {
-
-    if (B.isWinningCell(c.i, c.j, Me)) {
-
-        return 1;
-    } else if (B.isWinningCell(c.i, c.j, Enemy)) {
-
-        return -1;
-    } else
-
-        return 0;
-
-}
-
 
 // lo trasformiamo in coda con metodo fromArrayToQueue, e lanciamo alphabeta
 
-public int AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, int Alpha, int Beta, int depth) {
+private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, double Beta, int depth) {
     
-    int ev;
-    int t_ev;
-    if (H.size() == 1 || depth == 0) {
-         MNKCell[] cells = H.toArray(new MNKCell[H.size()]);
-        return evaluate(B, cells[0]) ;
+    double ev;
+    double t_ev;
+    if (H.size() == 0 || depth == 0) {
+        return evaluate(B) ;
     }
 
     if (t) { //  massimizza
-       // se ho vinto ritorno + 100/depth
+       
 
         ev = -100;
         t_ev = -100;
@@ -176,9 +165,12 @@ public int AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, int Alpha, int Beta,
         for (int i = 0; i < cells.length ; i++) {
             MNKCell c = cells[i];
             B.markCell(c.i, c.j, true);
-            if(B.MyWin) // tentativo di valutazione in base alla profondità
+            if(B.MyWin){ // trovo una foglia interrompo il ciclo 
                 t_ev = Math.max(t_ev, depth);
-                depth= 1;
+                break;
+            }
+           
+
             H.remove(c);
 
             ev = Math.max(ev, AlphaBeta(H, B, false, Alpha, Beta, depth - 1));
@@ -190,9 +182,7 @@ public int AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, int Alpha, int Beta,
             if (Beta <= Alpha)
                 break;
 
-        // il risultatp deve essere diviso per un fattore profondita 
-        //per favorire i cammini brevi 
-        // es. lose = 100/depth
+
         }
     } else {
         
@@ -203,9 +193,10 @@ public int AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, int Alpha, int Beta,
         for (int i = 0; i < cells.length; i++) {
             MNKCell c = cells[i];
             B.markCell(c.i, c.j, false);
-            if (B.EnemyWin) // tentativo di valutazione in base alla profondità
+            if (B.EnemyWin){ 
                 t_ev = Math.min(t_ev, -(depth));
-                depth = 1;
+                break;
+            }
             H.remove(c);
 
             ev = Math.min(ev, AlphaBeta(H, B, true, Alpha, Beta, depth - 1));
@@ -218,6 +209,40 @@ public int AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, int Alpha, int Beta,
         }
     }
     return t_ev;
+}
+
+public double evaluate(Board B) {// valutazione euristica
+    if (B.MyWin) {
+        return 1;
+    } else if (B.EnemyWin) {
+        return -1;
+    } else
+        return 0;
+
+}
+
+
+
+private void shortcutMoves(LinkedList <MNKCell> L,int M, int N, int k){
+    MNKCell c;
+    if(M < 4 && N < 4 )
+        c = new MNKCell(2, (int) Math.ceil(N / 2));
+    else
+        c = new MNKCell(1,1);
+    L.add(c);
+
+    for (int i = 1; i < k && c.i + i < M && c.j + i < N; i++) {// obb d,r
+        MNKCell tmp = new MNKCell(c.i + i, c.j + i);
+        L.add(tmp);
+    }
+    for(int i=1; i<k && c.i+i < M; i++){//oriz, r
+        MNKCell tmp = new MNKCell(c.i+i, c.j);
+        L.add(tmp);
+    }
+    for (int i = 1; i < k && c.j+i < N; i++) {// vert, d
+        MNKCell tmp = new MNKCell(c.i + i, c.j + i);
+        L.add(tmp);
+    }
 }
 
 }
