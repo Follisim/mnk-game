@@ -1,5 +1,7 @@
 package mnkgame;
 
+import java.util.LinkedList;
+
 public class Board {
     private int N;
     private int M;
@@ -12,7 +14,8 @@ public class Board {
     public boolean MyWin;
     public boolean EnemyWin;
 
-    public MNKCellState[][] B;
+    private MNKCellState[][] B;
+    private LinkedList<MNKCell> myMove;
 
     public Board(int M, int N, int K ,boolean F){
         this.N = N;
@@ -23,6 +26,7 @@ public class Board {
         MyWin = false;
         EnemyWin = false;
         B = new MNKCellState[M][N];
+        myMove = new LinkedList<MNKCell>();
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
                 B[i][j] = MNKCellState.FREE;
@@ -33,10 +37,12 @@ public class Board {
 
     public void markCell(int i, int j, boolean p) {
         if (p){
-            B[i][j] = MNKCellState.P1;
+            B[i][j] = Me;
             MyWin = isWinningCell(i, j, Me);
+            MNKCell tmp = new MNKCell(i, j);
+            myMove.add(tmp);
         }else{
-            B[i][j] = MNKCellState.P2;
+            B[i][j] = Enemy;
             EnemyWin = isWinningCell(i, j, Enemy);
         }
             
@@ -44,8 +50,32 @@ public class Board {
         
     }
 
+    
+    
+    public void markCell(int i, int j, boolean p,boolean s) {
+        
+        if (p){ 
+            B[i][j] = Me;
+            MNKCell tmp = new MNKCell(i, j);
+            myMove.add(tmp);
+        } else 
+            B[i][j] = Enemy;
+    }
+
+
     public void freeCell(int i, int j){
         B[i][j] = MNKCellState.FREE;
+        MNKCell tmp = new MNKCell(i, j);
+        myMove.remove(tmp);
+    }
+
+    public void freeMapp(){
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < M; j++) {
+                B[i][j]= MNKCellState.FREE;
+            }
+        }
+        cleanList(myMove);
     }
 
 
@@ -54,13 +84,29 @@ public class Board {
         return B[i][j];
     }
 
+    private void cleanList(LinkedList<MNKCell> L){
+        while(!L.isEmpty()){
+            L.remove();
+        }
 
+    }
+
+
+    public void printMap(){
+        for(int i=0;i<M;i++){
+
+            for(int j=0;j<M;j++){
+                System.out.print("|"+B[i][j]);
+            }
+            System.out.println("|");
+        }
+        System.out.println(" ");
+        System.out.println(" ");
+    }
 
   public boolean isWinningCell(int i, int j, MNKCellState s) {
 		
 	int n;
-	if (s == MNKCellState.FREE)
-		return false;
 
 	// orizzontale
 	n = 1;
@@ -105,5 +151,107 @@ public class Board {
     return false;
   }
 
+  public double evaluate(){
+    double ev=0;
+    MNKCell[] c = myMove.toArray(new MNKCell[myMove.size()]); 
+    for(int k=0; k<c.length;k++){
+        ev = ev + evalMuve(c[k].i, c[k].j);
+    }
+    return ev;
+  }
+
+
+ private double evalMuve(int i, int j) {
+
+    double c = 0;
+    int n = 0;
+
+      // Diagonale
+    n = 1;
+    for (int k = 1; i - k >= 0 && j - k >= 0 && B[i - k][j - k] != Enemy; k++){
+        if(B[i - k][j - k]== Me){
+            n++;
+        }else{
+            n++;
+            break;
+        }
+    }
+        
+    for (int k = 1; i + k < M && j + k < N && (B[i + k][j + k] != Enemy); k++){
+        if(B[i + k][j + k]== Me){
+            n++;
+        }else{
+            n++;
+            break;
+        }
+    }
+    c += (double) (n / (K - 1));
+      
+
+      // diagonale 2
+    n = 1;
+    for (int k = 1; i - k >= 0 && j + k < N && (B[i - k][j + k] != Enemy); k++){
+        if(B[i - k][j + k]== Me){
+            n++;
+        }else{
+            n++;
+            break;
+        }
+    }
+    for (int k = 1; i + k < N && j - k >= 0 && (B[i + k][j - k] != Enemy); k++){
+        if (B[i + k][j - k] == Me) {
+            n++;
+        } else {
+            n++;
+            break;
+        }
+    }
+    c += (double) (n / (K - 1));
+ 
+
+      // orizzontale
+    n = 1;
+    for (int k = 1; j - k >= 0 && (B[i][j - k] != Enemy); k++){
+        if (B[i][j - k] == Me) {
+            n++;
+        } else {
+            n++;
+            break;
+        }
+    } 
+    for (int k = 1; j + k < N && (B[i][j + k] != Enemy); k++){
+        if (B[i][j + k] == Me) {
+            n++;
+        } else {
+            n++;
+            break;
+        }
+    }
+    c += (double) (n / (K - 1));
+      
+
+      // verticale
+    n = 1;
+    for (int k = 1; i - k >= 0 && (B[i - k][j] != Enemy); k++){
+        if (B[i - k][j] == Me) {
+            n++;
+        } else {
+            n++;
+            break;
+        }
+    } 
+    for (int k = 1; i + k < M && (B[i + k][j] != Enemy); k++){
+        if (B[i + k][j] == Me) {
+            n++;
+        } else {
+            n++;
+            break;
+        }
+    }  
+    c += (double) (n / (K - 1));
+      
+
+      return (c/8);
+  }
 
 }
