@@ -72,7 +72,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 
   
     // HashSet celle libere 
-    HashSet<MNKCell> H = new HashSet<MNKCell>((int) 21 );
+    HashSet<MNKCell> H = new HashSet<MNKCell>((int) Math.ceil((FC.length) / 0.75) );
     for (int i = 0; i < FC.length; i++){
         H.add(FC[i]);
         if (B.isWinningCell(FC[i].i, FC[i].j, Me)){
@@ -86,17 +86,29 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         }
     }
 
-    // occupate HashSet
-    HashSet<MNKCell> Z = new HashSet<MNKCell>((int) 21);
-        for (int i = 0; i < MC.length; i++) {
-        Z.add(MC[i]);
-    }
     
     CellaValore finalCell = new CellaValore();
     finalCell.cell = FC[1];
     finalCell.val = 0;
+
+    int depth = 1; // calcolo brutale 
+    if(M==3)
+        depth =10;
+    else if(M==4)
+        depth = 5;
+    else if(M==5)
+        depth = 5; 
+    else if(M==6)
+        depth = 3;
+    else if(M==7)
+        depth = 2;
+    else if(M==8)
+        depth = 2;
+    else if(M==70)
+        depth = 0;
+
+
     
-    int depth = 4;  //da calcolare
 
 
     for(int i=0; i < FC.length; i++){
@@ -113,14 +125,14 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         h.cell = FC[i];
         h.val = e;
         if(h.val< 0){
-            h.val= -(h.val+ 0.1);
+            h.val += 0.1;
         }
         if(finalCell.val < h.val)
             finalCell = h;
        
     }
     //System.out.println(finalCell.val);
-    if(finalCell.val == 0){
+    if(finalCell.val < 0.9){
         MNKCell c = L.poll();
         while(B.getCell(c.i, c.j) != MNKCellState.FREE)
             c = L.poll();
@@ -212,13 +224,7 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
 }
 
 public double evaluate(Board B) {// valutazione euristica
-    if (B.MyWin) {
-        return 1;
-    } else if (B.EnemyWin) {
-        return -1;
-    } else
-        return 0;
-
+return B.evaluate();
 }
 
 
