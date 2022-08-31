@@ -143,7 +143,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 }
 
 public String playerName() {
-    return "GFPlayer2";
+    return "GFPlayer3";
 }
 
 
