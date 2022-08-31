@@ -1,16 +1,18 @@
 package mnkgame;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 public class Board {
     private int N;
     private int M;
     private int K;
+    private Random rand;
     private MNKCellState Me;
     private MNKCellState Enemy;
 
-    public int i;
-    public int j;
+    
+    
     public boolean MyWin;
     public boolean EnemyWin;
 
@@ -21,6 +23,7 @@ public class Board {
         this.N = N;
         this.M = M;
         this.K = K;
+        rand = new Random(System.currentTimeMillis());
         Me = F ? MNKCellState.P1 : MNKCellState.P2;
         Enemy = F ? MNKCellState.P2 : MNKCellState.P1;
         MyWin = false;
@@ -82,6 +85,17 @@ public class Board {
 
     public MNKCellState getCell(int i, int j) {// return lo stato della cella
         return B[i][j];
+    }
+
+    public MNKCell randCell(){
+        int i =0, j=0;
+        do{
+            i = rand.nextInt(M);
+            j = rand.nextInt(N);
+        }while(getCell(i, j)!= MNKCellState.FREE);
+        MNKCell c = new MNKCell(i, j);
+        return c;
+
     }
 
     private void cleanList(LinkedList<MNKCell> L){
