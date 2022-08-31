@@ -2,9 +2,7 @@ package mnkgame;
 
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
-
 import javax.xml.stream.events.StartDocument;
-
 import java.util.LinkedList;
 
 
@@ -25,6 +23,11 @@ public class GFPlayer3 implements MNKPlayer{
 
 public GFPlayer3(){}
 
+//M numero righe
+//N numero colonne 
+// c.i =riga i
+// c.j = colonna j 
+
 public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 
     TIMEOUT = timeout_in_secs;
@@ -32,9 +35,9 @@ public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) 
     Me = first ? MNKCellState.P1 : MNKCellState.P2;
     Enemy = first ? MNKCellState.P2 : MNKCellState.P1;
 
-    this.B = new Board(M, N, K, first);
-    L = new LinkedList<MNKCell>();
-    shortcutMoves(L,M,N,K-1);
+    this.B = new Board(M, N, K, first); // creo una board per memorizzare le mosse // board ha alcuni metodi che ci aiutano nel semplificare il codice 
+    L = new LinkedList<MNKCell>(); // creo una lista di mosse di riserva
+    shortcutMoves(L,M,N,K-1);// per affiancare l'alphaBeta nel caso non trovasse una mossa abbastanza soddisfacente 
     // System.out.println(L);
 
     this.M = M;
@@ -45,21 +48,20 @@ public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) 
 
 public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 
+    long start = System.currentTimeMillis(); 
 
-    long start = System.currentTimeMillis(); // gestione del tempo ancora da fare
-
-    if (MC.length > 0) {
+    if (MC.length > 0) {//ci troviamo nel corso della partita
         Boolean t = first;
         //System.out.println("lengt"+MC.length);
-        B.freeMapp();
+        B.freeMapp();  //pulisco la mappa per evitare errori 
         for (int w = 0; w < MC.length; w++) {
-            B.markCell(MC[w].i, MC[w].j, t,t); // copy oll moves in B  // t = false -> me= P2  Enemy= P1   
+            B.markCell(MC[w].i, MC[w].j, t,t); // copy oll moves in B   
             t = !t;
             // System.out.println(MC[w]);
         }
         
         //B.printMap();
-    } else {// mossa al centro della tabella
+    } else {// prima mossa della partita viene messa in un posto gia progrmmato, perche la prima mossa è anche la piu costosa computazionalmente 
           return L.poll(); 
     }
 
@@ -72,31 +74,31 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     HashSet<MNKCell> H = new HashSet<MNKCell>((int) Math.ceil((FC.length) / 0.75) );
     for (int i = 0; i < FC.length; i++){
         H.add(FC[i]);
-        if (B.isWinningCell(FC[i].i, FC[i].j, Me)){
+        if (B.isWinningCell(FC[i].i, FC[i].j, Me)){// se trovo una cella che mi fa vincere ritorno quella cella
             return FC[i];
         }
             
     }
     for (int i = 0; i < FC.length; i++) {
-        if (B.isWinningCell(FC[i].i, FC[i].j, Enemy)){
+        if (B.isWinningCell(FC[i].i, FC[i].j, Enemy)){// se trovo una cella che fa vincere in nemico in una mossa ritorno quella cella 
             return FC[i];
         }
     }
 
     
-    CellaValore finalCell = new CellaValore();
-    finalCell.cell = FC[1];
+    CellaValore finalCell = new CellaValore();//coppia di valori [cella , valore], per assegnare ad ogni cella un punteggio
+    finalCell.cell = FC[0];
     finalCell.val = 0;
 
-    int depth = 1; // calcolo brutale 
+    int depth = 1; // calcolo brutale della profondita ricavato da alcuni test  
     if(M==3)
         depth =10;
     else if(M==4)
         depth = 5;
     else if(M==5)
-        depth = 6; 
+        depth = 3; 
     else if(M==6)
-        depth = 3;
+        depth = 2;
     else if(M==7)
         depth = 2;
     else if(M==8)
@@ -107,13 +109,13 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 
     
 
-
+// ciclo di decisione della finalCell 
     for(int i=0; i < FC.length; i++){
-
-       if(checkTime(start))
-           return getShortcutMove();
-    
-            
+        
+        if(checkTime(start)){
+            System.out.println("no mor time");
+            return getShortcutMove();
+        }
         B.markCell(FC[i].i, FC[i].j, true);
 
         double e = AlphaBeta(H, B,false, -100, 100,depth);
@@ -121,9 +123,9 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
         B.freeCell(FC[i].i, FC[i].j);
 
         CellaValore h = new CellaValore();
-        //System.out.println(e);
         h.cell = FC[i];
         h.val = e;
+        
         if(h.val< 0){
             h.val += 0.1;
         }
@@ -135,6 +137,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     if(finalCell.val < 0.9)
         return getShortcutMove();
     
+    System.out.println("finito");    
     //System.out.println("valore cella finale "+finalCell.val);
     return finalCell.cell;
 }
@@ -219,7 +222,7 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
     return t_ev;
 }
 
-public double evaluate(Board B) {// valutazione euristica
+public  static double evaluate(Board B) {// valutazione euristica
 return B.evaluate();
 }
 
@@ -227,31 +230,37 @@ return B.evaluate();
 
 private void shortcutMoves(LinkedList <MNKCell> L,int M, int N, int k){
     MNKCell c;
-    if(M < 4 && N < 4 )
-        c = new MNKCell(2, (int) Math.ceil(N / 2));
-    else
-        c = new MNKCell(1,1);
+    c = new MNKCell(1,1);
     L.add(c);
 
     for (int i = 1; i < k && c.i + i < M && c.j + i < N; i++) {// obb d,r
         MNKCell tmp = new MNKCell(c.i + i, c.j + i);
         L.add(tmp);
     }
-    for(int i=1; i<k && c.i+i < M; i++){//oriz, r
+    for(int i = 1; i<k && c.i+i < M; i++){//ver, r
         MNKCell tmp = new MNKCell(c.i+i, c.j);
         L.add(tmp);
     }
-    for (int i = 1; i < k && c.j+i < N; i++) {// vert, d
+    for (int i = 1; i < k && c.j+i < N; i++) {// or, d
         MNKCell tmp = new MNKCell(c.i + i, c.j + i);
         L.add(tmp);
     }
 }
 
 private MNKCell getShortcutMove() {
-    MNKCell c = L.poll();
-    while (B.getCell(c.i, c.j) != MNKCellState.FREE)
-        c = L.poll();
-    return c;
+    if(!L.isEmpty()){
+        MNKCell c = L.poll();
+
+        while (B.getCell(c.i, c.j) != MNKCellState.FREE ){
+            if(!L.isEmpty())
+                c = L.poll();
+            else 
+                return B.randCell();
+        }
+        return c;
+    }else{
+        return B.randCell();
+    }
 }
 
 private boolean checkTime (long start){
