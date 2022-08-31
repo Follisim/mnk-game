@@ -2,6 +2,9 @@ package mnkgame;
 
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.stream.events.StartDocument;
+
 import java.util.LinkedList;
 
 
@@ -14,10 +17,9 @@ public class GFPlayer3 implements MNKPlayer{
     private MNKCellState Enemy;
     private LinkedList<MNKCell> L;
 
-    private int TIMEOUT;
+    private double  TIMEOUT;
     private boolean first;
-    private double Alpha;
-    private double Beta;
+
     
 
 
@@ -46,7 +48,6 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 
     long start = System.currentTimeMillis(); // gestione del tempo ancora da fare
 
-    
     if (MC.length > 0) {
         Boolean t = first;
         //System.out.println("lengt"+MC.length);
@@ -66,11 +67,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     if (FC.length == 1)
         return FC[0];
 
-    
-    
 
-
-  
     // HashSet celle libere 
     HashSet<MNKCell> H = new HashSet<MNKCell>((int) Math.ceil((FC.length) / 0.75) );
     for (int i = 0; i < FC.length; i++){
@@ -97,7 +94,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     else if(M==4)
         depth = 5;
     else if(M==5)
-        depth = 5; 
+        depth = 6; 
     else if(M==6)
         depth = 3;
     else if(M==7)
@@ -113,7 +110,10 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 
     for(int i=0; i < FC.length; i++){
 
-       // System.out.println("ciclo for ");
+       if(checkTime(start))
+           return getShortcutMove();
+    
+            
         B.markCell(FC[i].i, FC[i].j, true);
 
         double e = AlphaBeta(H, B,false, -100, 100,depth);
@@ -132,12 +132,9 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
        
     }
     //System.out.println(finalCell.val);
-    if(finalCell.val < 0.9){
-        MNKCell c = L.poll();
-        while(B.getCell(c.i, c.j) != MNKCellState.FREE)
-            c = L.poll();
-        return c;
-    }
+    if(finalCell.val < 0.9)
+        return getShortcutMove();
+    
     //System.out.println("valore cella finale "+finalCell.val);
     return finalCell.cell;
 }
@@ -181,12 +178,10 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
                 t_ev = Math.max(t_ev, depth);
                 break;
             }
-           
-
             H.remove(c);
-
-            ev = Math.max(ev, AlphaBeta(H, B, false, Alpha, Beta, depth - 1));
             
+            ev = Math.max(ev, AlphaBeta(H, B, false, Alpha, Beta, depth - 1));
+
             t_ev= Math.max(t_ev, ev);
             Alpha = Math.max(Alpha, t_ev);
             B.freeCell(c.i, c.j);
@@ -201,8 +196,8 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
         ev = 100;
         t_ev = 100;
         MNKCell[] cells = H.toArray(new MNKCell[H.size()]);
-
-        for (int i = 0; i < cells.length; i++) {
+        
+        for (int i = 0; i < cells.length; i++){
             MNKCell c = cells[i];
             B.markCell(c.i, c.j, false);
             if (B.EnemyWin){ 
@@ -212,6 +207,7 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
             H.remove(c);
 
             ev = Math.min(ev, AlphaBeta(H, B, true, Alpha, Beta, depth - 1));
+            
             t_ev = Math.min(t_ev, ev);
             Beta = Math.min(Beta, t_ev);
             B.freeCell(c.i, c.j);
@@ -250,5 +246,21 @@ private void shortcutMoves(LinkedList <MNKCell> L,int M, int N, int k){
         L.add(tmp);
     }
 }
+
+private MNKCell getShortcutMove() {
+    MNKCell c = L.poll();
+    while (B.getCell(c.i, c.j) != MNKCellState.FREE)
+        c = L.poll();
+    return c;
+}
+
+private boolean checkTime (long start){
+    if((TIMEOUT-0.5) <= System.currentTimeMillis()- start )
+        return true;
+    else
+        return false;
+}
+
+
 
 }
