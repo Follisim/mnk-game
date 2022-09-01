@@ -1,8 +1,6 @@
 package mnkgame;
 
 import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
-import javax.xml.stream.events.StartDocument;
 import java.util.LinkedList;
 
 
@@ -113,7 +111,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     for(int i=0; i < FC.length; i++){
         
         if(checkTime(start)){
-            System.out.println("no mor time");
+            //System.out.println("no mor time");
             return getShortcutMove();
         }
         B.markCell(FC[i].i, FC[i].j, true);
@@ -137,13 +135,13 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
     if(finalCell.val < 0.9)
         return getShortcutMove();
     
-    System.out.println("finito");    
+    //System.out.println("finito");    
     //System.out.println("valore cella finale "+finalCell.val);
     return finalCell.cell;
 }
 
 public String playerName() {
-    return "GFPlayer3";
+    return "GFPlayer2";
 }
 
 
@@ -157,8 +155,8 @@ private class CellaValore {
 
 
 
-// lo trasformiamo in coda con metodo fromArrayToQueue, e lanciamo alphabeta
 
+// alphaBeta
 private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, double Beta, int depth) {
     
     double ev;
@@ -172,12 +170,12 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
 
         ev = -100;
         t_ev = -100;
-        MNKCell[] cells = H.toArray(new MNKCell[H.size()]);
+        MNKCell[] cells = H.toArray(new MNKCell[H.size()]);// copio Hin un array
 
-        for (int i = 0; i < cells.length ; i++) {
+        for (int i = 0; i < cells.length ; i++) {// visita a tutti i figli del nodo
             MNKCell c = cells[i];
             B.markCell(c.i, c.j, true);
-            if(B.MyWin){ // trovo una foglia interrompo il ciclo 
+            if(B.MyWin){ // trovo una foglia interompo il ciclo 
                 t_ev = Math.max(t_ev, depth);
                 break;
             }
@@ -198,12 +196,12 @@ private double AlphaBeta(HashSet<MNKCell> H,Board B, boolean t, double Alpha, do
         
         ev = 100;
         t_ev = 100;
-        MNKCell[] cells = H.toArray(new MNKCell[H.size()]);
+        MNKCell[] cells = H.toArray(new MNKCell[H.size()]);// copio Hin un array
         
-        for (int i = 0; i < cells.length; i++){
+        for (int i = 0; i < cells.length; i++){//visita a tutti i figli del nodo
             MNKCell c = cells[i];
             B.markCell(c.i, c.j, false);
-            if (B.EnemyWin){ 
+            if (B.EnemyWin){ //foglia 
                 t_ev = Math.min(t_ev, -(depth));
                 break;
             }
@@ -233,22 +231,22 @@ private void shortcutMoves(LinkedList <MNKCell> L,int M, int N, int k){
     c = new MNKCell(1,1);
     L.add(c);
 
-    for (int i = 1; i < k && c.i + i < M && c.j + i < N; i++) {// obb d,r
+    for (int i = 1; i < k-1 && c.i + i < M && c.j + i < N; i++) {// obb d,r
         MNKCell tmp = new MNKCell(c.i + i, c.j + i);
         L.add(tmp);
     }
-    for(int i = 1; i<k && c.i+i < M; i++){//ver, r
+    for(int i = 1; i < k-1 && c.i+i < M; i++){//ver, r
         MNKCell tmp = new MNKCell(c.i+i, c.j);
         L.add(tmp);
     }
-    for (int i = 1; i < k && c.j+i < N; i++) {// or, d
+    for (int i = 1; i < k-1 && c.j+i < N; i++) {// or, d
         MNKCell tmp = new MNKCell(c.i + i, c.j + i);
         L.add(tmp);
     }
 }
 
 private MNKCell getShortcutMove() {
-    if(!L.isEmpty()){
+    if(!L.isEmpty()){//se non ho piu mosse buone e non ho piu tempo, scelgo una mossa casuale
         MNKCell c = L.poll();
 
         while (B.getCell(c.i, c.j) != MNKCellState.FREE ){
@@ -263,7 +261,7 @@ private MNKCell getShortcutMove() {
     }
 }
 
-private boolean checkTime (long start){
+private boolean checkTime (long start){//controllo base del tempo rimasto
     if((TIMEOUT-0.5) <= System.currentTimeMillis()- start )
         return true;
     else
