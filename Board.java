@@ -53,8 +53,8 @@ public class Board {
         
     }
 
-    
-    
+
+
     public void markCell(int i, int j, boolean p,boolean s) {
         
         if (p){ 
@@ -74,7 +74,7 @@ public class Board {
 
     public void freeMapp(){
         for (int i = 0; i < M; i++) {
-            for (int j = 0; j < M; j++) {
+            for (int j = 0; j < N; j++) {
                 B[i][j]= MNKCellState.FREE;
             }
         }
@@ -152,11 +152,11 @@ public class Board {
         return true;
 
 
-    // Anti-diagonale
+    // diagonale 2
     n=1;
     for(int k = 1;i-k>=0 && j+k<N && B[i-k][j+k]==s; k++)
         n++;
-    for(int k = 1; i+k<N && j-k>=0 && B[i+k][j-k]==s; k++)
+    for(int k = 1; i+k<M && j-k>=0 && B[i+k][j-k]==s; k++)
         n++;
     if(n>=K)
         return true;
@@ -169,7 +169,7 @@ public class Board {
     double ev=0;
     MNKCell[] c = myMove.toArray(new MNKCell[myMove.size()]); 
     for(int k=0; k<c.length;k++){
-        ev = ev + evalMuve(c[k].i, c[k].j);
+        ev += evalMuve(c[k].i, c[k].j);
     }
     return ev;
   }
@@ -178,7 +178,7 @@ public class Board {
  private double evalMuve(int i, int j) {
 
     double c = 0;
-    int n = 0;
+    double n = 0;
 
       // Diagonale
     n = 1;
@@ -186,7 +186,7 @@ public class Board {
         if(B[i - k][j - k]== Me){
             n++;
         }else{
-            n++;
+            n += 0.5;
             break;
         }
     }
@@ -195,7 +195,7 @@ public class Board {
         if(B[i + k][j + k]== Me){
             n++;
         }else{
-            n++;
+            n += 0.5;
             break;
         }
     }
@@ -208,15 +208,15 @@ public class Board {
         if(B[i - k][j + k]== Me){
             n++;
         }else{
-            n++;
+            n += 0.5;
             break;
         }
     }
-    for (int k = 1; i + k < N && j - k >= 0 && (B[i + k][j - k] != Enemy); k++){
+    for (int k = 1; i + k < M && j - k >= 0 && (B[i + k][j - k] != Enemy); k++){
         if (B[i + k][j - k] == Me) {
             n++;
         } else {
-            n++;
+            n += 0.5;
             break;
         }
     }
@@ -229,7 +229,7 @@ public class Board {
         if (B[i][j - k] == Me) {
             n++;
         } else {
-            n++;
+            n += 0.5;
             break;
         }
     } 
@@ -237,7 +237,7 @@ public class Board {
         if (B[i][j + k] == Me) {
             n++;
         } else {
-            n++;
+            n+= 0.5;
             break;
         }
     }
@@ -250,7 +250,7 @@ public class Board {
         if (B[i - k][j] == Me) {
             n++;
         } else {
-            n++;
+            n +=0.5;
             break;
         }
     } 
@@ -258,7 +258,7 @@ public class Board {
         if (B[i + k][j] == Me) {
             n++;
         } else {
-            n++;
+            n += 0.5;
             break;
         }
     }  
