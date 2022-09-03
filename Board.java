@@ -1,3 +1,9 @@
+/*
+ * Board viene usata in GFPlayer per tenere traccia delle messo precedenti
+ * e semplifica i calcoli euristici che vengono fatti direttamente 
+ * all'interno della struttura.
+ */
+
 package mnkgame;
 
 import java.util.LinkedList;
@@ -10,14 +16,14 @@ public class Board {
     private Random rand;
     private MNKCellState Me;
     private MNKCellState Enemy;
-
+    private MNKCellState[][] B;
+    private LinkedList<MNKCell> myMove;
     
     
     public boolean MyWin;
     public boolean EnemyWin;
 
-    private MNKCellState[][] B;
-    private LinkedList<MNKCell> myMove;
+
 
     public Board(int M, int N, int K ,boolean F){
         this.N = N;
@@ -37,7 +43,7 @@ public class Board {
         }
     }
 
-
+    //segna la mossa nella matrice B, controlla se qualcuno vince, aggiunge alla lista le nostre mosse  
     public void markCell(int i, int j, boolean p) {
         if (p){
             B[i][j] = Me;
@@ -54,7 +60,7 @@ public class Board {
     }
 
 
-
+    // segna le mosse nella matrice B, senza controllare se qualcuno vince, costo caso pessimo O(N*M)
     public void markCell(int i, int j, boolean p,boolean s) {
         
         if (p){ 
@@ -65,13 +71,14 @@ public class Board {
             B[i][j] = Enemy;
     }
 
-
+    // libera una cella  costo O(1)
     public void freeCell(int i, int j){
         B[i][j] = MNKCellState.FREE;
         MNKCell tmp = new MNKCell(i, j);
         myMove.remove(tmp);
     }
 
+    //mette tutta la mappa a free   costo O(N*M)
     public void freeMapp(){
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
@@ -82,11 +89,12 @@ public class Board {
     }
 
 
-
-    public MNKCellState getCell(int i, int j) {// return lo stato della cella
+    // return lo stato della cella, costo O(1)
+    public MNKCellState getCell(int i, int j) {
         return B[i][j];
     }
 
+    //sceglie una cella a caso, costo O(N*M)
     public MNKCell randCell(){
         int i =0, j=0;
         do{
@@ -95,17 +103,16 @@ public class Board {
         }while(getCell(i, j)!= MNKCellState.FREE);
         MNKCell c = new MNKCell(i, j);
         return c;
-
     }
 
+    //rimuovi tutti gli elementi nella lista, costo O(k)  K-> lunghezza delle caselle da allineare  
     private void cleanList(LinkedList<MNKCell> L){
         while(!L.isEmpty()){
             L.remove();
         }
-
     }
 
-
+    // disegna la mappa (usata a capire come evolve la mappa all'interno dell'alpha beta), non viene usata 
     public void printMap(){
         for(int i=0;i<M;i++){
 
@@ -118,7 +125,8 @@ public class Board {
         System.out.println(" ");
     }
 
-  public boolean isWinningCell(int i, int j, MNKCellState s) {
+    //controlla se MNKCellState s vince con la mossa in i,j 
+    public boolean isWinningCell(int i, int j, MNKCellState s) {
 		
 	int n;
 
@@ -163,20 +171,20 @@ public class Board {
   
   
     return false;
-  }
-
-  public double evaluate(){
-    double ev=0;
-    MNKCell[] c = myMove.toArray(new MNKCell[myMove.size()]); 
-    for(int k=0; k<c.length;k++){
-        ev += evalMuve(c[k].i, c[k].j);
     }
-    return ev;
-  }
 
+    //valutazione euristica  costo: ripetiamo c.length volte O(K) quindi O(K^2)
+    public double evaluate(){
+        double ev=0;
+        MNKCell[] c = myMove.toArray(new MNKCell[myMove.size()]); 
+        for(int k=0; k<c.length;k++){
+            ev += evalMuve(c[k].i, c[k].j);
+        }
+        return ev;
+    }
 
- private double evalMuve(int i, int j) {
-
+    // valutazione èuristica di una mossa costo O(K)
+    private double evalMuve(int i, int j) {
     double c = 0;
     double n = 0;
 
