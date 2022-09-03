@@ -90,7 +90,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 
     int depth = 1; // calcolo brutale della profondita ricavato da alcuni test  
     if(M==3)
-        depth =10;
+        depth =15;
     else if(M==4)
         depth = 5;
     else if(M==5)
@@ -132,8 +132,10 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
        
     }
     //System.out.println(finalCell.val);
-    if(finalCell.val < 0.9)
+    if(finalCell.val < 0.9){
+        System.out.println("scorciatoia");
         return getShortcutMove();
+    }
     
     //System.out.println("finito");    
     //System.out.println("valore cella finale "+finalCell.val);
@@ -141,7 +143,7 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
 }
 
 public String playerName() {
-    return "GFPlayer2";
+    return "GFPlayer3";
 }
 
 
@@ -231,15 +233,15 @@ private void shortcutMoves(LinkedList <MNKCell> L,int M, int N, int k){
     c = new MNKCell(1,1);
     L.add(c);
 
-    for (int i = 1; i < k-1 && c.i + i < M && c.j + i < N; i++) {// obb d,r
+    for (int i = 1; i < k && c.i + i < M && c.j + i < N; i++) {// obb d,r
         MNKCell tmp = new MNKCell(c.i + i, c.j + i);
         L.add(tmp);
     }
-    for(int i = 1; i < k-1 && c.i+i < M; i++){//ver, r
+    for(int i = 1; i < k && c.i+i < M; i++){//ver, r
         MNKCell tmp = new MNKCell(c.i+i, c.j);
         L.add(tmp);
     }
-    for (int i = 1; i < k-1 && c.j+i < N; i++) {// or, d
+    for (int i = 1; i < k && c.j+i < N; i++) {// or, d
         MNKCell tmp = new MNKCell(c.i + i, c.j + i);
         L.add(tmp);
     }
