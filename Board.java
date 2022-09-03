@@ -43,7 +43,8 @@ public class Board {
         }
     }
 
-    //segna la mossa nella matrice B, controlla se qualcuno vince, aggiunge alla lista le nostre mosse  
+    //segna la mossa nella matrice B, controlla se qualcuno vince, aggiunge alla lista le nostre mosse 
+    // costo : è uguale al costo di isWinningCell O(K)
     public void markCell(int i, int j, boolean p) {
         if (p){
             B[i][j] = Me;
@@ -60,7 +61,7 @@ public class Board {
     }
 
 
-    // segna le mosse nella matrice B, senza controllare se qualcuno vince, costo caso pessimo O(N*M)
+    // segna le mosse nella matrice B, senza controllare se qualcuno vince, costo caso pessimo O(1)
     public void markCell(int i, int j, boolean p,boolean s) {
         
         if (p){ 
@@ -71,11 +72,11 @@ public class Board {
             B[i][j] = Enemy;
     }
 
-    // libera una cella  costo O(1)
+    // libera una cella  costo O(K)
     public void freeCell(int i, int j){
         B[i][j] = MNKCellState.FREE;
         MNKCell tmp = new MNKCell(i, j);
-        myMove.remove(tmp);
+        myMove.remove(tmp); // costo O(K) perche la lista è lunga K
     }
 
     //mette tutta la mappa a free   costo O(N*M)
@@ -108,7 +109,7 @@ public class Board {
     //rimuovi tutti gli elementi nella lista, costo O(k)  K-> lunghezza delle caselle da allineare  
     private void cleanList(LinkedList<MNKCell> L){
         while(!L.isEmpty()){
-            L.remove();
+            L.remove(); //O(1)
         }
     }
 
@@ -125,7 +126,7 @@ public class Board {
         System.out.println(" ");
     }
 
-    //controlla se MNKCellState s vince con la mossa in i,j 
+    //controlla se MNKCellState s vince con la mossa in i,j costo O(K)
     public boolean isWinningCell(int i, int j, MNKCellState s) {
 		
 	int n;
