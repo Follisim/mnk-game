@@ -132,10 +132,9 @@ public MNKCell selectCell(MNKCell[] FC, MNKCell[] MC) {
        
     }
     //System.out.println(finalCell.val);
-    if(finalCell.val < 0.9){
-        System.out.println("scorciatoia");
+    if(finalCell.val < 0.9)
         return getShortcutMove();
-    }
+    
     
     //System.out.println("finito");    
     //System.out.println("valore cella finale "+finalCell.val);
