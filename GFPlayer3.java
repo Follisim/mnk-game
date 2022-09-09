@@ -21,7 +21,10 @@ public class GFPlayer3 implements MNKPlayer{
 
 public GFPlayer3(){}
 
-
+//M numero righe
+//N numero colonne 
+// c.i =riga i
+// c.j = colonna j 
 
 public void initPlayer(int M, int N, int K, boolean first, int timeout_in_secs) {
 
@@ -223,7 +226,7 @@ return B.evaluate();
 }
 
 
-// lista di mosse di riserva costo: O(K)
+
 private void shortcutMoves(LinkedList <MNKCell> L,int M, int N, int k){
     MNKCell c;
     c = new MNKCell(1,1);
